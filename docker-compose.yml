@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+  eurekaserver:
+    container_name: eureka
+    image: unholyhoper/eureka
+    networks:
+      - eureka-server
+    ports:
+      - "8761:8761"
+
+  microservice-users:
+    container_name: users-management
+    image: unholyhoper/users-management
+    ports:
+      - "8801:8801"
+    networks:
+      - eureka-server
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka
+    depends_on:
+      - eurekaserver
+  microservice-comp:
+    container_name: microservicegestioncredit
+    image: microservicegestioncredit
+    ports:
+      - "8802:8802"
+    networks:
+      - eureka-server
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka
+    depends_on:
+      - eurekaserver
+  microservice-gateway:
+    container_name: microservices-microservice-gateway-1
+    image: unholyhoper/gateway
+    ports:
+      - "8762:8762"
+    networks:
+      - eureka-server
+    environment:
+      - eureka.client.serviceUrl.defaultZone=http://eureka:8761/eureka
+    depends_on:
+      - eurekaserver
+
+networks:
+  eureka-server:
+    name: eureka-server
+    driver: bridge
